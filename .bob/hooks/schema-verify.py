@@ -124,12 +124,13 @@ print()
 # ── Check 2: Key object structures respond ────────────────────────────────────
 print("[ Check 2 ] Object structure availability")
 
+# Note: this instance uses MXAPI-prefixed structures for SR and Location
 SCHEMAS_TO_CHECK = [
-    ("mxwo",             "wonum",      "Work Order"),
-    ("mxasset",          "assetnum",   "Asset"),
-    ("mxpr",             "prnum",      "Purchase Requisition"),
-    ("mxpo",             "ponum",      "Purchase Order"),
-    ("mxsr",             "ticketid",   "Service Request"),
+    ("mxwo",         "wonum",      "Work Order"),
+    ("mxasset",      "assetnum",   "Asset"),
+    ("mxapisr",      "ticketid",   "Service Request"),
+    ("mxapioperloc", "location",   "Operating Location"),
+    ("mxinventory",  "itemnum",    "Inventory"),
 ]
 
 for os_name, select_field, label in SCHEMAS_TO_CHECK:

@@ -3,14 +3,39 @@ name: regression-impact
 description: >-
   Map a MAS version upgrade or change log to the impacted test workflows.
   Use when MAS has been upgraded and you need to determine which regression
-  tests to run. Produces AI-driven regression selection — not "run all 78 tests".
+  tests to run. Produces AI-driven regression selection - not "run all 78 tests".
+  Backed by Agent 0 (Upgrade Scout) which reads real IBM Docs and performs
+  live Maximo schema diffs via MCP.
 ---
 
 # Regression Impact Analyser Skill
 
 When activated, map a MAS version change or change description to the minimum
-viable set of test workflows. This is AI-driven regression selection — the goal
+viable set of test workflows. This is AI-driven regression selection - the goal
 is to run the RIGHT tests, not ALL tests.
+
+---
+
+## IMPORTANT: Use Agent 0 (Upgrade Scout) for Real Intelligence
+
+Before manually analysing change documents, run Agent 0 to get live data:
+
+```bash
+# Save baselines (first time, or after upgrade)
+python orchestrator.py --scout
+
+# Or run the full pipeline which includes Agent 0 automatically
+python orchestrator.py --workflow pr_to_po
+```
+
+Agent 0 provides THREE live intelligence sources:
+1. IBM Docs scrape - fetches the real What's New page from IBM documentation
+2. Live schema diff (MCP) - queries OSLC API for MXWO, MXASSET, MXSR, MXLOCATION,
+   MXINVENTORY and diffs field lists against stored baselines in baselines/
+3. Domain diff (MCP) - compares WOSTATUS, PRSTATUS, POSTATUS values before/after
+
+If reports/upgrade_scout_report.json exists, read it first - it contains
+the real impacted workflows derived from live Maximo system data, not assumptions.
 
 ---
 
@@ -39,7 +64,7 @@ Sources to read:
 
 ---
 
-## Step 2 — Map Changes to Functional Areas
+## Step 2 -- Map Changes to Functional Areas
 
 For each change identified, determine which Maximo functional area it affects.
 Use the MAS Change Catalog (`mas-change-catalog.md`) as your reference.

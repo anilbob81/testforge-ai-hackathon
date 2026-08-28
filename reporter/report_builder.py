@@ -1,4 +1,4 @@
-﻿"""
+"""
 Report Builder
 ━━━━━━━━━━━━━━
 IBM Bob 2.0 Hackathon - Maximo Autonomous Test Engineer
@@ -53,8 +53,12 @@ def build_report(
     api_results:      dict,
     ui_results:       dict,
     failure_analysis: dict,
+    heal_analysis:    dict = None,
+    scout_report:     dict = None,
 ) -> str:
     """Build the full HTML email report combining all agent outputs."""
+    heal_analysis  = heal_analysis  or {}
+    scout_report   = scout_report   or {}
 
     workflow   = analysis.get("workflow_name", "unknown")
     bp         = analysis.get("business_process", "")
@@ -203,10 +207,28 @@ def build_report(
     <!-- Agent pipeline banner -->
     <div style="background:#f0f4ff;border:1px solid #dce3f0;border-radius:5px;
                 padding:10px 16px;margin-bottom:20px;font-size:12px;color:#0f4c81;">
-      <strong>🤖 IBM Bob 2.0 Agent Pipeline:</strong>
-      &nbsp; Agent 1 Analyse &rarr; Agent 2 Plan &rarr;
-      Agent 3 API Tests &rarr; Agent 4 UI Tests &rarr; Agent 5 Classify &rarr; Report
+      <strong>[BOB] IBM Bob 2.0 7-Agent Pipeline:</strong>
+      &nbsp; Agent 0 Scout &rarr; Agent 1 Analyse &rarr; Agent 2 Plan &rarr;
+      Agent 3 API &rarr; Agent 4 UI &rarr; Agent 5 Classify
+      {' &rarr; Agent 6 Heal (' + str(heal_analysis.get("healed",0)) + ' healed)' if heal_analysis.get("healed",0) > 0 or heal_analysis.get("proposed",0) > 0 else ''}
+      &rarr; Report
     </div>
+
+    <!-- Upgrade Scout summary (if data available) -->
+    {('<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:5px;padding:10px 16px;margin-bottom:16px;font-size:12px;">'
+      '<strong>[SCOUT] Upgrade Intelligence (Agent 0):</strong>'
+      ' IBM Docs changes read: ' + str(scout_report.get("ibm_docs_count", 0)) +
+      ' | Schema structures diffed: ' + str(len(scout_report.get("schema_diffs", []))) +
+      ' | Impacted workflows: ' + (", ".join(scout_report.get("impacted_workflows", [])) or "none detected") +
+      '</div>') if scout_report.get("ibm_docs_count") else ""}
+
+    <!-- Locator Heal summary (if healer ran) -->
+    {('<div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:5px;padding:10px 16px;margin-bottom:16px;font-size:12px;">'
+      '<strong>[HEAL] Agent 6 Locator Healer:</strong>'
+      ' Healed: ' + str(heal_analysis.get("healed", 0)) +
+      ' | Proposed: ' + str(heal_analysis.get("proposed", 0)) +
+      ' | Needs human: ' + str(heal_analysis.get("needs_human", 0)) +
+      '</div>') if (heal_analysis.get("healed", 0) > 0 or heal_analysis.get("proposed", 0) > 0) else ""}
 
     <!-- Failure analysis -->
     {failure_html if failures else
