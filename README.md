@@ -5,11 +5,12 @@
 
 ## What This Is
 
-A **5-agent AI-orchestrated pipeline** that transforms a single plain-English command
-into a full Maximo regression test run — API tests, Selenium UI tests, AI failure
-classification, and an email report — completely autonomous.
+A **7-agent AI-orchestrated pipeline** that transforms a single plain-English command
+into a full Maximo regression test run — IBM Docs scraping, schema diffing, API tests,
+Selenium UI tests, AI failure classification, autonomous locator healing, and an email
+report — completely autonomous.
 
-**One command. Five agents. Live results. Email delivered.**
+**One command. Seven agents. Live results. Email delivered.**
 
 ```bash
 python orchestrator.py --workflow pr_to_po
@@ -33,14 +34,20 @@ Maintenance, etc.
 
 ---
 
-## The 5-Agent Pipeline
+## The 7-Agent Pipeline
 
 ```
 You type:  python orchestrator.py --workflow pr_to_po
                ↓
+[Agent 0 — Upgrade Scout]
+  Scrapes IBM Docs "What's New in Maximo 9.2" for real change items
+  Queries live Maximo OSLC API — diffs 5 object structures vs baselines
+  Diffs domain status values (WOSTATUS, PRSTATUS, POSTATUS)
+  Identifies impacted workflows from live intelligence (MCP pattern)
+               ↓
 [Agent 1 — Requirement Analyser]
   Reads MAXIMO_TEST_AUTOMATION_FRAMEWORK.md (Document Understanding)
-  Reads workflow_map.json + GitHub issue / change description
+  Reads workflow_map.json + Agent 0 scout report
   Maps 'pr_to_po' → test_06_pr + test_07_po + test_10_ui_procurement
   Produces impact analysis with business context
                ↓
@@ -62,8 +69,15 @@ You type:  python orchestrator.py --workflow pr_to_po
   Classifies: APPLICATION_DEFECT / LOCATOR_DRIFT / TIMING / AUTH / TEST_DATA
   Suggests exact fix per failure (not just the error message)
                ↓
+[Agent 6 — Locator Healer]  (only if LOCATOR_DRIFT failures exist)
+  Probes Maximo DOM for candidate replacement elements
+  Fuzzy-matches to find best replacement locator
+  Patches test file (.bak backup created first)
+  Re-runs patched test — if pass: HEALED; if fail: reverts + PROPOSED
+               ↓
 [Reporter]
-  Builds styled HTML report with failure analysis cards
+  Builds styled HTML report with all 7 agent results
+  Includes Upgrade Scout banner + Locator Healer summary
   Sends email to team with report attached
 ```
 
@@ -73,11 +87,12 @@ You type:  python orchestrator.py --workflow pr_to_po
 
 | Feature | Where | What It Does |
 |---------|-------|-------------|
-| **Agent Mode** | Entire orchestrator | Runs all agents, executes pytest, sends email |
-| **Subagents** | Agent 1 & 2 | Isolated doc reading + parallel planning |
-| **Document Understanding** | Agent 1 | Reads 67-page framework doc to extract workflow context |
-| **MCP Pattern** | Agent 5 | Queries live Maximo REST API to verify system state |
+| **Agent Mode** | Entire orchestrator | Runs all 7 agents, executes pytest, sends email |
+| **Subagents** | Agent 0 + 1 + 2 | Isolated doc/web reading + parallel planning |
+| **Document Understanding** | Agent 0 + 1 | IBM Docs scraping + 67-page framework doc |
+| **MCP Pattern** | Agent 0 + 5 | Live schema diff + failure context queries |
 | **Parallel Tasks** | Agent 3 + 4 | API and UI tests designed for concurrent execution |
+| **Autonomous Re-test** | Agent 6 | Heals LOCATOR_DRIFT failures + re-runs automatically |
 | **Custom Skills** | `.bob/skills/` | 5 reusable skills (see table below) |
 | **Custom Modes** | `.bob/custom_modes.yaml` | 4 specialist AI personas |
 | **Rules / Guides** | `.bob/rules.md` | Steers Bob before every action (feedforward) |
@@ -184,10 +199,11 @@ This project was built following the structured loop from the hackathon guide:
 
 | Phase | What Happened |
 |-------|--------------|
-| 🔍 **Explore** | Read all 5 agents, config, orchestrator, existing reports, hackathon PDF |
-| 📝 **Plan** | Designed Bob layer: 5 skills, 4 modes, rules, quality gates, demo scenario |
-| ⚙️ **Implement** | Created all `.bob/` files, `hackathon/` docs, `bob_sessions/` folder |
-| ✅ **Verify** | Quality gates run, pipeline validated, email confirmed, PR generated |
+| **Explore** | Read all 5 agents, config, orchestrator, existing reports, hackathon PDF |
+| **Plan** | Designed Bob layer: 5 skills, 4 modes, rules, quality gates, demo scenario |
+| **Implement** | Bob layer (.bob/), Agent 0 (Upgrade Scout), Agent 6 (Locator Healer), baselines |
+| **Verify** | 58/58 API tests pass, 18/18 P2P pass, email confirmed, all 7 quality gates pass |
+| **Polish** | Docs updated to 7 agents, issue resolved, screenshots committed, final push |
 
 See [`hackathon/PLAN.md`](hackathon/PLAN.md) for the full tracked plan.
 
@@ -210,21 +226,32 @@ maximo-ai-agent/                    ← This project — IBM Bob 2.0 hackathon
 │       ├── pre-commit.py           ← Quality gate (run before commit)
 │       └── schema-verify.py        ← Maximo connectivity probe
 ├── agents/
+│   ├── agent_00_upgrade_scout.py   ← IBM Docs scrape + live schema diff (MCP)
 │   ├── agent_01_analyser.py        ← Document Understanding + workflow mapping
 │   ├── agent_02_strategist.py      ← Test strategy planning
 │   ├── agent_03_api_runner.py      ← pytest API test execution
 │   ├── agent_04_ui_runner.py       ← Selenium UI test execution
-│   └── agent_05_failure_analyst.py ← Failure classification (MCP pattern)
+│   ├── agent_05_failure_analyst.py ← Failure classification (MCP pattern)
+│   └── agent_06_locator_healer.py  ← Autonomous locator healing + re-test
+├── baselines/                      ← Live schema snapshots (Agent 0 diffs against these)
+│   ├── mxwo_schema.json            ← 159-field WO schema baseline
+│   ├── mxasset_schema.json         ← 61-field Asset schema baseline
+│   ├── mxapisr_schema.json         ← 84-field SR schema baseline
+│   ├── mxapioperloc_schema.json    ← 54-field Location schema baseline
+│   └── mxinventory_schema.json     ← 44-field Inventory schema baseline
 ├── config/agent_config.py          ← Maximo + email configuration
 ├── reporter/report_builder.py      ← HTML report + SMTP email
 ├── hackathon/
 │   ├── ONBOARDING.md               ← Developer onboarding guide
-│   ├── AGENTS.md                   ← Bob /init style project context
+│   ├── AGENTS.md                   ← Bob /init style project context (7 agents)
 │   ├── PLAN.md                     ← Living plan (Explore→Plan→Implement→Verify)
-│   ├── github-issue-P2P-001.md     ← Demo scenario as GitHub issue
+│   ├── github-issue-P2P-001.md     ← Demo scenario GitHub issue (RESOLVED)
 │   └── demo-script.md              ← 8-minute demo walkthrough
 ├── bob_sessions/                   ← Task session screenshots (submission)
-├── orchestrator.py                 ← Pipeline entry point
+│   ├── How all agents are connected.png
+│   ├── Test Strategist.png
+│   └── Failure Analyst agent.png
+├── orchestrator.py                 ← Pipeline entry point (7 agents)
 ├── workflow_map.json               ← Workflow → test file mappings
 ├── reports/                        ← Generated HTML reports
 └── logs/                           ← Execution logs
@@ -242,18 +269,17 @@ maximo-regression-tests/            ← EXISTING SUITE — NEVER MODIFIED
 See [`hackathon/demo-script.md`](hackathon/demo-script.md) for the full 8-minute
 demo walkthrough including narrative, fallback plans, and key messages.
 
-**Core scenario**: *"MAS has been upgraded. Validate that P2P still works."*
+**Core scenario**: *"MAS has been upgraded to 9.2. Validate that P2P still works."*
 
 The autonomous engineer:
-1. Reads the GitHub issue (hackathon/github-issue-P2P-001.md)
-2. Identifies P2P as impacted (AI-driven regression selection)
-3. Selects 18 relevant tests (not all 78)
-4. Chooses API + Selenium strategy
-5. Runs tests against live Maximo
-6. Detects receipt failure
-7. Classifies as TEST_DATA (storeroom inactive — not a code bug)
-8. Suggests exact fix (Maximo admin navigation path)
-9. Produces email report with complete analysis
+1. **Agent 0**: Reads IBM Docs + live schema diff → detects 5 MAS 9.2 change signals
+2. **Agent 1**: Reads GitHub issue — identifies P2P as impacted (AI regression selection)
+3. **Agent 2**: Selects `pr_to_po` — 18 tests instead of 78, API + UI strategy
+4. **Agent 3**: Runs 10 API tests — PR/PO PASS, Receipt FAIL (HTTP 400 BMXAA4073E)
+5. **Agent 4**: Runs 8 Selenium tests — Chrome drives full P2P flow
+6. **Agent 5**: Classifies failure as TEST_DATA (storeroom inactive — not a code bug)
+7. **Agent 6**: LOCATOR_DRIFT check — none, skipped (all clean)
+8. **Reporter**: Email report with root cause + exact fix suggestion
 
 ---
 
@@ -269,7 +295,11 @@ The autonomous engineer:
 | Custom Modes | 4 |
 | Quality Gate hooks | 2 |
 | Hackathon docs | 5+ |
-| Agent pipeline | 5 agents |
+| Agent pipeline | **7 agents** |
+| New agents added this hackathon | 2 (Agent 0: Upgrade Scout, Agent 6: Locator Healer) |
+| Schema baselines saved | 5 OSLC object structures |
 | Workflows | 8 |
 | Test cases covered | 78 |
+| Final verified run (pr_to_po) | 18/18 passed |
+| Final verified run (api_only) | 58/58 passed |
 | Max manual hours automated | 29.5h |

@@ -1,24 +1,27 @@
-# 🤖 TestForge AI — Developer Onboarding
+# TestForge AI — Developer Onboarding
 ### IBM TechXchange 2026 Dev Day Hackathon | IBM Bob 2.0
 
 ---
 
 ## What This Project Does
 
-**One sentence**: Type a plain-English testing requirement → 5 AI agents execute it autonomously → failures classified with root cause → email report delivered.
+**One sentence**: Type a plain-English testing requirement → 7 AI agents execute it autonomously → failures classified with root cause → locators auto-healed → email report delivered.
 
 ```bash
 python orchestrator.py --workflow pr_to_po
 ```
 
 ```
+[Agent 0] IBM Docs scrape: 5 MAS 9.2 changes detected...
+[Agent 0] Schema diff: MXWO/MXASSET/MXAPISR unchanged
 [Agent 1] Reading MAXIMO_TEST_AUTOMATION_FRAMEWORK.md...
 [Agent 1] Workflow 'pr_to_po' → test_06_pr, test_07_po, test_10_ui_procurement
 [Agent 2] Strategy: API + UI (CRITICAL — full stack validation)
-[Agent 3] Running API tests... 10/10 passed ✅
-[Agent 4] Chrome opens — Selenium drives PR→PO→Receipt→Invoice ✅
-[Agent 5] Classifying failures... 0 failures — all clean ✅
-[Reporter] Email sent → anil.dontaraju@nexergroup.com ✅
+[Agent 3] Running API tests... 10/10 passed
+[Agent 4] Chrome opens — Selenium drives PR→PO→Receipt→Invoice
+[Agent 5] Classifying failures... 0 failures — all clean
+[Agent 6] Locator Healer — no LOCATOR_DRIFT failures, skipping
+[Reporter] Email sent → anil.dontaraju@nexergroup.com
 PIPELINE COMPLETE — 18/18 passed | 6h manual effort saved | 95% time reduction
 ```
 
@@ -91,27 +94,38 @@ maximo-ai-agent/
 │   └── hooks/
 │       ├── pre-commit.py        ← Quality gate (run before commit)
 │       └── schema-verify.py     ← Maximo connectivity probe
-├── agents/                      ← The 5 AI agents
-│   ├── agent_01_analyser.py     ← Document Understanding + workflow mapping
-│   ├── agent_02_strategist.py   ← API vs UI strategy planning
-│   ├── agent_03_api_runner.py   ← pytest API test execution
-│   ├── agent_04_ui_runner.py    ← Selenium UI test execution
-│   └── agent_05_failure_analyst.py ← Root cause classification
+├── agents/                      ← The 7 AI agents
+│   ├── agent_00_upgrade_scout.py   ← IBM Docs + Live Schema Diff (MCP)
+│   ├── agent_01_analyser.py        ← Document Understanding + workflow mapping
+│   ├── agent_02_strategist.py      ← API vs UI strategy planning
+│   ├── agent_03_api_runner.py      ← pytest API test execution
+│   ├── agent_04_ui_runner.py       ← Selenium UI test execution
+│   ├── agent_05_failure_analyst.py ← Root cause classification
+│   └── agent_06_locator_healer.py  ← Autonomous locator healing + re-test
+├── baselines/                   ← Live schema snapshots (Agent 0 diff)
+│   ├── mxwo_schema.json         ← 159-field baseline
+│   ├── mxasset_schema.json      ← 61-field baseline
+│   ├── mxapisr_schema.json      ← 84-field baseline
+│   ├── mxapioperloc_schema.json ← 54-field baseline
+│   └── mxinventory_schema.json  ← 44-field baseline
 ├── config/agent_config.py       ← Maximo + email configuration
 ├── reporter/report_builder.py   ← HTML report + email sender
 ├── hackathon/                   ← Submission documentation
 │   ├── ONBOARDING.md            ← This file
 │   ├── AGENTS.md                ← Agent descriptions
 │   ├── PLAN.md                  ← Living plan (Explore→Plan→Implement→Verify)
-│   ├── github-issue-P2P-001.md  ← Simulated GitHub issue
+│   ├── github-issue-P2P-001.md  ← Demo scenario GitHub issue (resolved)
 │   └── demo-script.md           ← 8-minute demo walkthrough
-├── bob_sessions/                ← Task session screenshots (required for submission)
-├── orchestrator.py              ← Entry point — runs all 5 agents
+├── bob_sessions/                ← Task session screenshots (submission)
+│   ├── How all agents are connected.png
+│   ├── Test Strategist.png
+│   └── Failure Analyst agent.png
+├── orchestrator.py              ← Entry point — runs all 7 agents
 ├── workflow_map.json            ← Maps workflow names to test modules
 ├── reports/                     ← Generated HTML reports (auto-created)
 └── logs/                        ← Execution logs (auto-created)
 
-maximo-regression-tests/         ← ❌ EXISTING SUITE — NEVER MODIFY
+maximo-regression-tests/         ← EXISTING SUITE — NEVER MODIFY
 ```
 
 ---
@@ -181,6 +195,28 @@ Bob will activate `requirement-analyser` skill automatically.
 
 ---
 
+## Agent 0 — Upgrade Scout (New in Session 3)
+
+Before any tests run, Agent 0 gathers **live** upgrade intelligence:
+
+```bash
+# Run Agent 0 standalone to save schema baselines
+python orchestrator.py --scout
+
+# Skip Agent 0 on subsequent runs (use cached data)
+python orchestrator.py --workflow pr_to_po --no-scout
+```
+
+Agent 0 queries three sources:
+1. **IBM Docs** — scrapes "What's New in Maximo 9.2" for real change items
+2. **Live Schema Diff** — diffs 5 OSLC object structures against saved baselines
+3. **Domain Diff** — compares status code domains (WOSTATUS, PRSTATUS, POSTATUS)
+
+If a schema field is **removed**, Agent 0 flags it as `HIGH` impact and the relevant
+workflow is automatically added to the regression scope.
+
+---
+
 ## Quality Gates (Bob Sensors)
 
 These must pass before every commit:
@@ -226,13 +262,13 @@ git push origin feature/testforge-ai-hackathon
 ## Hackathon Submission Checklist
 
 Before submitting:
-- [ ] `bob_sessions/` contains screenshots of all major Bob tasks
-- [ ] `hackathon/PLAN.md` shows all 4 phases (Explore/Plan/Implement/Verify) completed
-- [ ] All quality gates pass: `python .bob/hooks/pre-commit.py`
-- [ ] Pipeline runs end-to-end: `python orchestrator.py --workflow pr_to_po`
-- [ ] Email report received at `anil.dontaraju@nexergroup.com`
-- [ ] GitHub Issue #001 read and analysed by the agent
-- [ ] README.md reflects all Bob 2.0 features used
+- [x] `bob_sessions/` contains screenshots of all major Bob tasks
+- [x] `hackathon/PLAN.md` shows all 4 phases (Explore/Plan/Implement/Verify) completed
+- [x] All quality gates pass: `python .bob/hooks/pre-commit.py`
+- [x] Pipeline runs end-to-end: `python orchestrator.py --workflow pr_to_po`
+- [x] Email report received at `anil.dontaraju@nexergroup.com`
+- [x] GitHub Issue #001 read, analysed, and resolved by the agent
+- [x] README.md reflects all Bob 2.0 features used (7 agents)
 
 ---
 
