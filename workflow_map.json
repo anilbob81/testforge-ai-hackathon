@@ -1,0 +1,116 @@
+{
+  "workflows": {
+    "pr_to_po": {
+      "description": "Purchase Requisition to Purchase Order full lifecycle",
+      "business_process": "Procure-to-Pay — PR creation, approval, PO creation, PO approval, goods receipt, invoice",
+      "api_tests": [
+        "tests/api/test_06_pr.py",
+        "tests/api/test_07_po.py"
+      ],
+      "ui_tests": [
+        "tests/ui/test_10_ui_procurement_lifecycle.py"
+      ],
+      "manual_hours_equivalent": 6.0,
+      "priority": "critical"
+    },
+    "work_order": {
+      "description": "Work Order full lifecycle — create, approve, start, complete",
+      "business_process": "Corrective Maintenance — WO creation through completion with location lookup and status transitions",
+      "api_tests": [
+        "tests/api/test_01_workorder.py"
+      ],
+      "ui_tests": [
+        "tests/ui/test_08_ui_workorder.py"
+      ],
+      "manual_hours_equivalent": 3.0,
+      "priority": "critical"
+    },
+    "pm_maintenance": {
+      "description": "Preventive Maintenance lifecycle + Work Order generation",
+      "business_process": "PM schedule creation, activation, and automatic WO generation trigger",
+      "api_tests": [
+        "tests/api/test_04_pm.py",
+        "tests/api/test_05_jobplan.py"
+      ],
+      "ui_tests": [
+        "tests/ui/test_09_ui_pm_lifecycle.py"
+      ],
+      "manual_hours_equivalent": 4.0,
+      "priority": "high"
+    },
+    "asset_management": {
+      "description": "Asset and Location hierarchy management",
+      "business_process": "Asset creation, location assignment, parent-child hierarchy, status management",
+      "api_tests": [
+        "tests/api/test_02_location.py",
+        "tests/api/test_03_asset.py"
+      ],
+      "ui_tests": [],
+      "manual_hours_equivalent": 2.0,
+      "priority": "high"
+    },
+    "service_request": {
+      "description": "Service Request creation and lifecycle",
+      "business_process": "SR intake, priority classification, affected person, status workflow",
+      "api_tests": [
+        "tests/api/test_08_sr.py"
+      ],
+      "ui_tests": [],
+      "manual_hours_equivalent": 1.5,
+      "priority": "medium"
+    },
+    "wo_from_jobplan": {
+      "description": "End-to-end Work Order created from Job Plan with tasks",
+      "business_process": "Job Plan definition, WO creation from JP, task verification, full status flow",
+      "api_tests": [
+        "tests/api/test_05_jobplan.py",
+        "tests/api/test_09_wo_from_jobplan.py"
+      ],
+      "ui_tests": [],
+      "manual_hours_equivalent": 2.5,
+      "priority": "high"
+    },
+    "api_only": {
+      "description": "All 58 API tests — full backend validation (fast, under 20 seconds)",
+      "business_process": "Complete API regression across all 8 Maximo object structures",
+      "api_tests": [
+        "tests/api/test_00_schema_check.py",
+        "tests/api/test_01_workorder.py",
+        "tests/api/test_02_location.py",
+        "tests/api/test_03_asset.py",
+        "tests/api/test_04_pm.py",
+        "tests/api/test_05_jobplan.py",
+        "tests/api/test_06_pr.py",
+        "tests/api/test_07_po.py",
+        "tests/api/test_08_sr.py",
+        "tests/api/test_09_wo_from_jobplan.py"
+      ],
+      "ui_tests": [],
+      "manual_hours_equivalent": 14.5,
+      "priority": "critical"
+    },
+    "full_regression": {
+      "description": "Complete regression suite — all 78 tests (API + UI)",
+      "business_process": "Full Maximo Application Suite post-upgrade validation",
+      "api_tests": [
+        "tests/api/test_00_schema_check.py",
+        "tests/api/test_01_workorder.py",
+        "tests/api/test_02_location.py",
+        "tests/api/test_03_asset.py",
+        "tests/api/test_04_pm.py",
+        "tests/api/test_05_jobplan.py",
+        "tests/api/test_06_pr.py",
+        "tests/api/test_07_po.py",
+        "tests/api/test_08_sr.py",
+        "tests/api/test_09_wo_from_jobplan.py"
+      ],
+      "ui_tests": [
+        "tests/ui/test_08_ui_workorder.py",
+        "tests/ui/test_09_ui_pm_lifecycle.py",
+        "tests/ui/test_10_ui_procurement_lifecycle.py"
+      ],
+      "manual_hours_equivalent": 29.5,
+      "priority": "critical"
+    }
+  }
+}

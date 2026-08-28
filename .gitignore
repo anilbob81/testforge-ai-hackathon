@@ -1,0 +1,26 @@
+# TestForge AI -- Git Ignore
+# Do NOT commit generated outputs, secrets, or cache files
+
+# Generated reports and logs
+reports/*.html
+logs/
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python environments
+venv/
+.venv/
+env/
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
