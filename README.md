@@ -51,10 +51,11 @@ You type:  python orchestrator.py --workflow pr_to_po
   Maps 'pr_to_po' → test_06_pr + test_07_po + test_10_ui_procurement
   Produces impact analysis with business context
                ↓
-[Agent 2 — Test Strategist]
-  Decides: API + UI (critical workflow — both layers needed)
+[Agent 2 — Test Strategist]  ✦ IBM watsonx.ai (Llama-3.3-70b)
+  Sends workflow context + upgrade signals to IBM Llama-3.3-70b
+  LLM reasons: "CRITICAL P2P change + storeroom validation → API_AND_UI"
+  Fallback: rule engine if watsonx unavailable (pipeline never stops)
   Estimates: ~9 minutes runtime, 6h manual equivalent
-  Strategy: CRITICAL → full stack validation
                ↓
 [Agent 3 — API Test Runner]           [Agent 4 — UI Test Runner]
   Runs pytest API tests                 Opens Chrome (Selenium WebDriver)
@@ -63,11 +64,12 @@ You type:  python orchestrator.py --workflow pr_to_po
                ↓                              ↓
                └──────────────┬───────────────┘
                               ↓
-[Agent 5 — Failure Analyst]
-  Reads tracebacks for every failed test
-  Queries live Maximo via REST API to confirm record state (MCP pattern)
-  Classifies: APPLICATION_DEFECT / LOCATOR_DRIFT / TIMING / AUTH / TEST_DATA
-  Suggests exact fix per failure (not just the error message)
+[Agent 5 — Failure Analyst]  ✦ IBM watsonx.ai (Llama-3.3-70b)
+  Sends full traceback + HTTP status + Maximo error code to IBM Llama-3.3-70b
+  LLM classifies: APPLICATION_DEFECT / LOCATOR_DRIFT / TIMING / AUTH / TEST_DATA
+  Provides human-readable explanation + exact fix suggestion
+  Handles novel failures rules have never seen — not just pattern matching
+  Fallback: rule-based pattern matching if watsonx unavailable
                ↓
 [Agent 6 — Locator Healer]  (only if LOCATOR_DRIFT failures exist)
   Probes Maximo DOM for candidate replacement elements
@@ -80,6 +82,36 @@ You type:  python orchestrator.py --workflow pr_to_po
   Includes Upgrade Scout banner + Locator Healer summary
   Sends email to team with report attached
 ```
+
+---
+
+## IBM watsonx.ai Integration
+
+Two agents use **live IBM watsonx.ai inference** (Llama-3.3-70b) to make intelligent
+decisions that go beyond what static rule engines can do:
+
+| Agent | What watsonx Does | Why It Matters |
+|-------|------------------|----------------|
+| **Agent 2 — Test Strategist** | Receives workflow context + upgrade signals → reasons about API vs UI vs both | Handles nuanced cases: "CRITICAL + storeroom change + PO auth change = full stack" |
+| **Agent 5 — Failure Analyst** | Receives full traceback + error code + MAS change context → classifies root cause | Handles novel failures no rule has ever seen — provides human-readable explanation |
+
+**Model**: `meta-llama/llama-3-3-70b-instruct`
+**Platform**: IBM watsonx.ai — `us-south.ml.cloud.ibm.com` (Dallas)
+**Auth**: IAM token exchange → Bearer token → `/ml/v1/text/generation`
+**Client**: [`agents/watsonx_client.py`](agents/watsonx_client.py) — direct REST, no SDK dependency
+
+### Graceful Degradation
+
+Both agents use the same fallback pattern — watsonx is an enhancement, not a dependency:
+
+```python
+result = watsonx_client.generate(prompt)   # IBM Llama-3.3-70b
+if result is None:                          # quota / network / 403
+    return rule_based_fallback()            # always works, pipeline never stops
+```
+
+When watsonx is live, the report shows an `IBM Llama-3.3-70b ✦ AI` badge.
+When the fallback runs, it shows `Rule Engine`. Either way, 18/18 tests complete.
 
 ---
 
@@ -490,20 +522,22 @@ python demo_score_analysis.py
 
 ---
 
-## Made with IBM Bob 2.0
+## Made with IBM Bob 2.0 + IBM watsonx.ai
 
 > Built entirely in IBM Bob 2.0 Agent mode during the IBM TechXchange 2026 Dev Day Hackathon.
 > The existing `maximo-regression-tests/` project was not modified.
 > Everything in this folder was generated from scratch using IBM Bob 2.0.
 
-| Bob Feature | Usage Count |
-|-------------|------------|
-| Custom Skills | 5 |
-| Custom Modes | 4 |
-| Quality Gate hooks | 2 |
-| Hackathon docs | 5+ |
+| Metric | Value |
+|--------|-------|
+| IBM Bob Custom Skills | 5 |
+| IBM Bob Custom Modes | 4 |
+| IBM Bob Quality Gate hooks | 2 |
+| IBM Bob Hackathon docs | 5+ |
 | Agent pipeline | **7 agents** |
 | New agents added this hackathon | 2 (Agent 0: Upgrade Scout, Agent 6: Locator Healer) |
+| **IBM watsonx.ai integrations** | **2 (Agent 2 strategy + Agent 5 classification)** |
+| **watsonx model** | **meta-llama/llama-3-3-70b-instruct** |
 | Schema baselines saved | 5 OSLC object structures |
 | Workflows | 8 |
 | Test cases covered | 78 |
