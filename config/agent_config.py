@@ -7,6 +7,7 @@ Does NOT import from the existing project — paths are resolved at runtime.
 import os
 from pathlib import Path
 
+
 # ── Paths ─────────────────────────────────────────────────────────────────────
 # Locate the existing regression project (sibling folder)
 THIS_DIR       = Path(__file__).parent.parent           # maximo-ai-agent/
@@ -41,5 +42,20 @@ EMAIL_CONFIG = {
 # Average manual testing time (hours) saved per test type — used in report
 MANUAL_HOURS_PER_API_TEST = 0.25   # 15 min manual effort per API test
 MANUAL_HOURS_PER_UI_TEST  = 0.75   # 45 min manual effort per UI test
+
+# ── watsonx.ai (IBM Granite) ──────────────────────────────────────────────────
+# Credentials from the IBM TechXchange Hackathon watsonx challenge account
+# Account: watsonx (557f160a7c2d4b739a1fa02315d6fb85b) — Frankfurt region
+WATSONX_API_KEY    = "xYxhLsnl8fHOpMJgG-AwV-iIxVohSM_pTD-L75HM7x_i"
+WATSONX_URL        = "https://us-south.ml.cloud.ibm.com"   # watsonx-Hackathon WML is Dallas
+WATSONX_PROJECT_ID = "b4fae006-1edf-4d97-92e5-2f156c99adc7"  # TestForgeAI-Dallas (us-south)
+
+# Model to use — IBM Granite instruct (best for classification + structured output)
+# Fallback order: granite-3-8b-instruct → granite-13b-instruct-v2
+WATSONX_MODEL_ID   = "ibm/granite-3-8b-instruct"
+
+# Inference parameters
+WATSONX_MAX_TOKENS = 400
+WATSONX_TEMPERATURE = 0.0   # Deterministic — classification must be consistent
 
 # Made with IBM Bob 2.0
