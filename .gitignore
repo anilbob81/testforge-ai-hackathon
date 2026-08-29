@@ -1,4 +1,4 @@
-# TestForge AI -- Git Ignore
+﻿# TestForge AI -- Git Ignore
 # Do NOT commit generated outputs, secrets, or cache files
 
 # Generated reports and logs
@@ -24,3 +24,15 @@ env/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Demo videos (too large for GitHub -- keep locally only)
+hackathon/*.mp4
+hackathon/*.mov
+
+# Bob task session files
+bob-task-*.json
+bob-tasks-*.json
+
+# Raw pytest JSON results (generated, not needed in Git)
+reports/api_results_*.json
+reports/ui_results_*.json

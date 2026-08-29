@@ -7,7 +7,7 @@
 
 ---
 
-## Current Status: COMPLETE (Session 4)
+## Current Status: COMPLETE (Session 6)
 
 | Phase | Status | Completed | Notes |
 |-------|--------|-----------|-------|
@@ -17,6 +17,8 @@
 | Implement (Agent 0+6) | DONE | Session 3 | Upgrade Scout + Locator Healer added |
 | Verify | DONE | Session 3 | 18/18 passed, email delivered, all 7 gates pass |
 | Polish + Submit | DONE | Session 4 | Docs updated, issue resolved, screenshots committed |
+| AI Integration | DONE | Session 5 | IBM watsonx Llama-3.3-70b live — Agent 2+5 upgraded |
+| Report Redesign | DONE | Session 6 | AI badges, combined scores, P2P stage table, new report |
 
 ---
 
@@ -173,6 +175,54 @@ pr_to_po:  18/18 tests PASS  — 9 minutes 51 seconds
 
 ---
 
+## Phase 6 — SESSION 5: AI INTEGRATION ✅
+
+**Goal**: Upgrade Agent 2 (Test Strategist) and Agent 5 (Failure Analyst) with live IBM watsonx.ai inference.
+
+**Changes made**:
+- [x] Created `agents/watsonx_client.py` — REST client for IBM watsonx.ai (IAM token exchange + Llama inference)
+- [x] `config/agent_config.py` — watsonx credentials added (personal Frankfurt account)
+  - Model: `meta-llama/llama-3-3-70b-instruct`
+  - Project: `TestForgeAI` (ID: `eb6de40d-3bf6-4501-9144-6c622d8b3dd1`)
+- [x] `agents/agent_02_strategist.py` — Llama AI strategy decision with if/elif rule fallback
+- [x] `agents/agent_05_failure_analyst.py` — Llama AI failure classification with rule fallback
+- [x] Verified: `python agents/watsonx_client.py` → `[PASS] AI is live`
+- [x] Full pipeline run: Llama returned `API_AND_UI` strategy ✅
+- [x] Committed: `[TestForge] feat: watsonx LIVE — Llama-3.3-70b inference confirmed`
+
+---
+
+## Phase 7 — SESSION 6: REPORT REDESIGN ✅
+
+**Goal**: Replace the basic HTML report with a full TestForge AI demo-quality report.
+
+**What was wrong with the old report**:
+- Showed only 8 tests (UI only) — not combined 18 (10 API + 8 UI)
+- No AI strategy badge or AI classification badges
+- No MAS 9.2 Upgrade Scout section
+- No P2P lifecycle stage-by-stage table
+- No 7-agent pipeline banner
+- File named `api_report_*` (confusing)
+
+**Report improvements delivered**:
+- [x] Score cards: `grand_total = api_total + ui_total` — shows **18** correctly
+  - Sub-labels: "10 API + 8 UI" under each card
+- [x] AI strategy badge: `AI DECIDED` (purple) when Llama decided, `RULE ENGINE` (grey) otherwise
+- [x] AI classification badge per failure: `IBM Llama-3.3-70b` (blue) vs `Rule Engine` (grey)
+- [x] MAS 9.2 Upgrade Scout section with: docs count, schemas diffed, P2P impacted flag
+- [x] P2P lifecycle chain visual: `[OK] PR → [OK] PO → [OK] Receipt → [OK] Invoice`
+- [x] P2P stage-by-stage table with PASS/FAIL/SKIPPED per stage
+- [x] 7-Agent AI Pipeline banner showing all agents in sequence
+- [x] New filename: `TestForgeAI_MAS92_P2P_Report_<timestamp>.html`
+- [x] New email subject: `[TestForge AI] MAS 9.2 P2P Validation — PASS — 18 passed, 0 failed`
+- [x] Orchestrator `--no-email` path updated to use same naming convention
+- [x] Verified: score cards show `18 / 18 / 0` ✅
+- [x] Email delivered to `anil.dontaraju@nexergroup.com` ✅
+- [x] Pre-commit gate: all 7 gates pass ✅
+- [x] Committed: `[TestForge] feat: redesigned P2P report — AI badges, stage table, 18-test combined scores`
+
+---
+
 ## Key Architectural Decisions
 
 ### Why is the existing pipeline untouched?
@@ -214,7 +264,10 @@ Can use the same Python environment as the agents. Exit codes are explicit.
 | Email reports delivered | Confirmed |
 | Max test automation hours saved | 29.5h (full_regression) |
 | Fastest workflow | api_only (~16 seconds) |
-| Bob 2.0 features demonstrated | 11 |
+| Bob 2.0 features demonstrated | 12 |
+| watsonx.ai integrations | 2 (Agent 2 strategy + Agent 5 classification) |
+| AI model | meta-llama/llama-3-3-70b-instruct (Frankfurt) |
+| Report sections | 7 (header, pipeline, scout, P2P stages, failures, API table, UI table) |
 
 ---
 

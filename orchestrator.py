@@ -225,7 +225,7 @@ def run_pipeline(workflow_name: str, send_email: bool = True,
         # Save report to disk even if not emailing
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
         ts        = datetime.now().strftime("%Y%m%d_%H%M%S")
-        html_file = REPORTS_DIR / f"agent_report_{workflow_name}_{ts}.html"
+        html_file = REPORTS_DIR / f"TestForgeAI_MAS92_P2P_Report_{ts}.html"
         html_file.write_text(html, encoding="utf-8")
         print(f"  [SAVE] Report saved (email skipped): {html_file}")
 
