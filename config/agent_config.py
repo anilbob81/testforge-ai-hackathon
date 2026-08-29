@@ -44,11 +44,11 @@ MANUAL_HOURS_PER_API_TEST = 0.25   # 15 min manual effort per API test
 MANUAL_HOURS_PER_UI_TEST  = 0.75   # 45 min manual effort per UI test
 
 # ── watsonx.ai (IBM Llama via WatsonMachineLearning) ─────────────────────────
-# Account: 3033211 - Anil Dontaraju (personal account — Frankfurt)
-# Project: TestForgeAI (eb6de40d) with WatsonMachineLearning associated
-WATSONX_API_KEY    = "pHW1ILYNShLFT7w5VqQxHXdZH3MC-7IhzdpIBi48feQ3"
-WATSONX_URL        = "https://eu-de.ml.cloud.ibm.com"      # Frankfurt — WatsonMachineLearning
-WATSONX_PROJECT_ID = "eb6de40d-3bf6-4501-9144-6c622d8b3dd1"  # TestForgeAI Frankfurt project
+# Account: 2964586 - Anil Dontaraju (personal account — Dallas / us-south)
+# Project: TestForgeAI (a5525268) with WatsonMachineLearning associated
+WATSONX_API_KEY    = "gKke_CTDJCU6qUf3i-mBRHc_ndGhuNgckgoz-8uEgDdz"
+WATSONX_URL        = "https://us-south.ml.cloud.ibm.com"    # Dallas — WatsonMachineLearning
+WATSONX_PROJECT_ID = "a5525268-b970-4743-b8b8-b5f1c58ff9ea"  # TestForgeAI Dallas project
 
 # Model: meta-llama/llama-3-3-70b-instruct (best available on this instance)
 # ibm/granite-3-8b-instruct not available on Lite — Llama-3.3-70b confirmed working

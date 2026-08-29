@@ -11,7 +11,7 @@ Flow:
   2. POST to /ml/v1/text/generation with Bearer token + project_id
   3. Return generated text to caller
 
-Model: ibm/granite-3-8b-instruct  (us-south / Dallas)
+Model: meta-llama/llama-3-3-70b-instruct  (us-south / Dallas)
 Auth:  IAM token exchange (iam.cloud.ibm.com)
 
 Fallback: returns None on ANY failure so Agent 2 and Agent 5

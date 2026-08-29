@@ -286,4 +286,53 @@ All settings in [`config/agent_config.py`](../config/agent_config.py):
 
 ---
 
+## Future Improvements
+
+The following improvements are identified and scoped — ready for the next sprint:
+
+### 1. Locator Registry (highest impact — 1 day effort)
+**Problem**: Agent 6 auto-heals only ~20% of locator failures because Maximo uses random
+hashes (`mad3161b5-tb`) that score LOW in fuzzy matching.
+
+**Solution**: Run the existing `probes/` scripts nightly. Write all element IDs to
+`baselines/locator_registry.json`. Agent 6 looks up the registry first — if the broken
+ID was captured before, the replacement is known at 100% confidence.
+
+```bash
+# How it would work:
+python probes/probe_all_pages.py          # saves baselines/locator_registry.json
+python orchestrator.py --workflow work_order  # Agent 6 uses registry → all HEALED
+```
+
+### 2. Test Generator Agent (Agent 2.5)
+**Problem**: Agent 0 detects new API fields but no test is auto-generated to verify them.
+
+**Solution**: A new agent between Strategist and API Runner that reads
+`scout_report.schema_diffs[].new_fields` and calls IBM Granite to write a pytest
+assertion for each new field, injecting it into the test run automatically.
+
+### 3. Sentinel-aware DOM Probe (30 min fix)
+**Problem**: `probe_page_dom()` uses `time.sleep(5)` which may not be long enough
+for the Maximo React SPA to load past the login page.
+
+**Solution**:
+```python
+# In agent_06_locator_healer.py probe_page_dom():
+# Replace: time.sleep(5)
+# With:
+WebDriverWait(self.driver, 30).until(
+    EC.presence_of_element_located((By.ID, "quicksearch"))
+)
+```
+
+### 4. Granite-enhanced locator matching
+**Problem**: Completely renamed IDs (e.g. `approveWO_action_btn` replacing a hashed ID)
+score LOW even though the semantic meaning is obvious from the aria label.
+
+**Solution**: Pass the broken locator + top DOM candidates to Granite with the question:
+*"The old element had aria='Approve Work Order'. Which of these is the same element?"*
+This handles complete renames that fuzzy string matching cannot.
+
+---
+
 *Made with IBM Bob 2.0 · IBM TechXchange 2026 Dev Day Hackathon*

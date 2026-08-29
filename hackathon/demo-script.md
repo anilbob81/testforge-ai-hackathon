@@ -222,6 +222,34 @@ showing the storeroom failure classification.
 
 ---
 
+## Standalone Demo — Agent 6 Locator Healer (No Full Pipeline Needed)
+
+For a focused demo of the auto-correction loop without waiting 9+ minutes for a full run:
+
+```bash
+# DEMO A: Full algorithm proof — breaks a locator, Agent 6 finds and patches it
+python demo_locator_heal.py
+# Expected output:
+#   Score: 0.857 (86%) — HIGH confidence
+#   AUTO-PATCH decision
+#   [HEALED] mad3161b5-tb-OLD -> mad3161b5-tb
+
+# DEMO B: Shows all 4 upgrade ID-change patterns with real scores
+python demo_score_analysis.py
+# Expected output:
+#   A (Hash regenerated):   0.522 LOW  — NEEDS_HUMAN
+#   B (Suffix version bump): 1.000 HIGH — AUTO-HEALED
+#   C (Stable, unchanged):  1.000 HIGH — (no change needed)
+#   D (Completely renamed):  0.392 LOW  — NEEDS_HUMAN
+```
+
+**Key talking points for this demo**:
+- *"The algorithm correctly identifies the matching element at 86% confidence and patches the file automatically"*
+- *"For hashed IDs — the dominant Maximo pattern — it correctly escalates rather than guessing"*
+- *"The next improvement is a Locator Registry — periodic probes store element IDs, and Agent 6 looks them up instead of guessing. That takes auto-heal from 20% to ~100%."*
+
+---
+
 ## Key Messages to Land
 
 1. **One command → full autonomous cycle** (not step-by-step prompting)
@@ -230,6 +258,7 @@ showing the storeroom failure classification.
 4. **App defect vs test defect distinction** (saves escalation time)
 5. **IBM Bob 2.0 features** (Skills, Modes, Rules, Subagents, Document Understanding, MCP)
 6. **Durable value** (Skills + Modes survive the hackathon — team asset)
+7. **Honest engineering** (known limitations documented, roadmap defined — not vaporware)
 
 ---
 

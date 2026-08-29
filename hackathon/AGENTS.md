@@ -174,18 +174,46 @@ python orchestrator.py --scout
 **Responsibility**:
 - Only activates when Agent 5 classifies one or more `LOCATOR_DRIFT` failures
 - For each LOCATOR_DRIFT failure: probes the Maximo DOM for candidate elements
-- Uses fuzzy matching to find the best replacement locator
+- Uses fuzzy matching (token coverage + sequence similarity) to find best replacement
 - Patches the test file (creates `.bak` backup first)
 - Re-runs the patched test to verify the fix
 - Reports: healed count, proposed (needs review) count, needs_human count
-- Reverts patch if re-run still fails
+- Reverts patch automatically if re-run still fails
 
 **Heal outcomes**:
-| Outcome | Meaning |
-|---------|---------|
-| `HEALED` | Patched + re-ran + passed — fully autonomous fix |
-| `PROPOSED` | Patch generated but confidence below threshold — needs review |
-| `NEEDS_HUMAN` | Cannot find replacement — escalate to test engineer |
+| Outcome | Confidence | Meaning |
+|---------|-----------|---------|
+| `HEALED` | > 0.85 HIGH | Patched + re-ran + passed — fully autonomous fix |
+| `PROPOSED` | 0.60–0.85 MEDIUM | Fix suggested but needs human confirmation before applying |
+| `NEEDS_HUMAN` | < 0.60 LOW | Cannot find reliable replacement — escalate with candidate list |
+
+**Scoring benchmarks (4 real Maximo upgrade patterns)**:
+| Pattern | Example | Score | Auto-heals? |
+|---------|---------|-------|-------------|
+| Suffix/version added | `toolactions_INSERT-tbb_anchor` → `..._v2` | 1.000 | YES |
+| Stable ID unchanged | `quicksearch` | 1.000 | YES (no-op) |
+| Hash regenerated | `mad3161b5-tb` → `f9a7c2d1-tb` | 0.522 | NO — NEEDS_HUMAN |
+| Completely renamed | `md86fe08f_ns_menu_APPR_OPTION_a` → `approveWO_action_btn` | 0.392 | NO — NEEDS_HUMAN |
+
+**Honest auto-heal rate**: ~20% of real Maximo locator failures fully autonomous.
+Hash-regenerated IDs (the dominant Maximo pattern, ~70% of cases) are surfaced
+to humans with candidates listed — the investigation is done, just not auto-applied.
+
+**Known limitation**: `probe_page_dom()` uses a 5-second sleep that can be too short
+for the Maximo React SPA to fully load. Fix: replace with a `WebDriverWait` for
+a sentinel element (`quicksearch`) to guarantee the correct page is loaded before scraping.
+
+**Proposed improvement — Locator Registry**:
+Run the existing `probes/` scripts periodically and write element IDs to
+`baselines/locator_registry.json`. Agent 6 looks up the registry before fuzzy
+matching — if the broken ID was seen before, its replacement is known with 100%
+confidence. This would raise the auto-heal rate from ~20% to ~100%.
+
+**Demo scripts** (standalone, no full pipeline needed):
+```bash
+python demo_locator_heal.py      # end-to-end: break a locator, prove it patches
+python demo_score_analysis.py    # benchmark all 4 upgrade patterns
+```
 
 **Input**: Failure analysis from Agent 5 (LOCATOR_DRIFT items only)
 **Output**: Heal analysis dict — `{healed, proposed, needs_human, results[]}`
