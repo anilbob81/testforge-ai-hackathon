@@ -43,16 +43,16 @@ EMAIL_CONFIG = {
 MANUAL_HOURS_PER_API_TEST = 0.25   # 15 min manual effort per API test
 MANUAL_HOURS_PER_UI_TEST  = 0.75   # 45 min manual effort per UI test
 
-# ── watsonx.ai (IBM Granite) ──────────────────────────────────────────────────
-# Credentials from the IBM TechXchange Hackathon watsonx challenge account
-# Account: watsonx (557f160a7c2d4b739a1fa02315d6fb85b) — Frankfurt region
-WATSONX_API_KEY    = "xYxhLsnl8fHOpMJgG-AwV-iIxVohSM_pTD-L75HM7x_i"
-WATSONX_URL        = "https://us-south.ml.cloud.ibm.com"   # watsonx-Hackathon WML is Dallas
-WATSONX_PROJECT_ID = "b4fae006-1edf-4d97-92e5-2f156c99adc7"  # TestForgeAI-Dallas (us-south)
+# ── watsonx.ai (IBM Llama via WatsonMachineLearning) ─────────────────────────
+# Account: 3033211 - Anil Dontaraju (personal account — Frankfurt)
+# Project: TestForgeAI (eb6de40d) with WatsonMachineLearning associated
+WATSONX_API_KEY    = "pHW1ILYNShLFT7w5VqQxHXdZH3MC-7IhzdpIBi48feQ3"
+WATSONX_URL        = "https://eu-de.ml.cloud.ibm.com"      # Frankfurt — WatsonMachineLearning
+WATSONX_PROJECT_ID = "eb6de40d-3bf6-4501-9144-6c622d8b3dd1"  # TestForgeAI Frankfurt project
 
-# Model to use — IBM Granite instruct (best for classification + structured output)
-# Fallback order: granite-3-8b-instruct → granite-13b-instruct-v2
-WATSONX_MODEL_ID   = "ibm/granite-3-8b-instruct"
+# Model: meta-llama/llama-3-3-70b-instruct (best available on this instance)
+# ibm/granite-3-8b-instruct not available on Lite — Llama-3.3-70b confirmed working
+WATSONX_MODEL_ID   = "meta-llama/llama-3-3-70b-instruct"
 
 # Inference parameters
 WATSONX_MAX_TOKENS = 400
